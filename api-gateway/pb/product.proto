@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package products;
+
+option go_package = "/pb";
+
+import "google/protobuf/timestamp.proto";
+
+service ProductService {
+  rpc GetAll(GetProductsRequest) returns(GetProductsResponse);
+  rpc GetProduct(GetProductRequest) returns(GetProductResponse);
+  rpc CreateProduct(CreateProductRequest) returns(CreateProductResponse);
+  rpc UpdateProduct(UpdateProductRequest) returns(UpdateProductResponse);
+  rpc DeleteProduct(DeleteProductRequest) returns(DeleteProductResponse);
+}
+
+message Pagination {
+  uint64 current_page = 1;
+  uint64 prev_page = 2;
+  uint64 next_page = 3;
+  uint64 total_page = 4;
+}
+
+message Products {
+  uint64 id = 1;
+  string name = 2;
+  string description = 3;
+  double price = 4;
+  string thumbnail = 5;
+  uint64 user_id = 6;
+  uint64 version = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+  google.protobuf.Timestamp deleted_at = 10;
+}
+
+message GetProductsRequest {
+  uint64 page = 1;
+  uint64 limit = 2;
+}
+message GetProductsResponse {
+  Pagination pagination = 1;
+  repeated Products result = 2;
+}
+
+message GetProductRequest {
+  uint64 id = 1;
+}
+
+message GetProductResponse {
+  Products result = 1;
+}
+
+message CreateProductRequest {
+  string name = 1;
+  string description = 2;
+  double price = 3;
+  string thumbnail = 4;
+  uint64 user_id = 5;
+}
+
+message CreateProductResponse {
+  string result = 1;
+}
+
+message UpdateProductRequest {
+  uint64 id = 1;
+  string name = 2;
+  string description = 3;
+  double price = 4;
+  string thumbnail = 5;
+  uint64 user_id = 6;
+}
+
+message UpdateProductResponse {
+  string result = 1;
+}
+
+message DeleteProductRequest {
+  uint64 id = 1;
+  uint64 user_id = 2;
+}
+
+message DeleteProductResponse {
+  string result = 1;
+}

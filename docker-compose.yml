@@ -1,0 +1,75 @@
+version: '3.9'
+
+services:
+  mysql:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_DATABASE: product-service
+      MYSQL_USER: mysql
+      MYSQL_PASSWORD: mysecretpassword
+      MYSQL_ROOT_PASSWORD: mysecretpassword
+    ports:
+      - "3306:3306"
+
+  postgres:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: auth-service
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:latest
+    command: redis-server --requirepass mysecretpassword
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=mysecretpassword
+      
+  api-gateway:
+    build: 
+      context: ./api-gateway
+      dockerfile: ./Dockerfile
+    ports:
+      - "8081:8081"
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      GRPC_AUTH_HOST: "auth-service:5002"
+      GRPC_PRODUCT_HOST: "product-service:5003"
+      PORT: 8081
+    
+  auth-service:
+    build: 
+      context: ./auth-service
+      dockerfile: ./Dockerfile
+    ports:
+      - "8082:8082"
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      DSN: "host=postgres port=5432 user=postgres password=mysecretpassword dbname=auth-service sslmode=disable timezone=UTC connect_timeout=5"
+      JWT_SECRET: "SECRET"
+      GRPC_PORT: 5002
+
+  product-service:
+    build: 
+      context: ./product-service
+      dockerfile: ./Dockerfile
+    ports:
+      - "8083:8083"
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      DSN: "mysql:mysecretpassword@tcp(mysql:3306)/product-service?charset=utf8mb4&parseTime=True&loc=Local"
+      GRPC_PORT: 5003
+      PORT: 8083
+      REDIS_HOST: "redis:6379"
+      REDIS_PASSWORD: "mysecretpassword"

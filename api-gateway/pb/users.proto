@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package users;
+
+option go_package = "/pb";
+
+import "google/protobuf/timestamp.proto";
+
+service UserService {
+  rpc Register (UserRegisterRequest) returns (UserRegisterResponse);
+  rpc Login (UserLoginRequest) returns (UserLoginResponse);
+  rpc Verify (UserVerifyRequest) returns (UserVerifyResponse);
+}
+
+message Users {
+  uint64 id = 1;
+  string name = 2;
+  string username = 3;
+  string password = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+  google.protobuf.Timestamp deleted_at = 7;
+}
+
+message UserRegisterRequest {
+  string name = 1;
+  string username = 2;
+  string password = 3;
+}
+
+message UserRegisterResponse {
+  string result = 1;
+}
+
+message UserLoginRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message UserLoginResponse {
+  string token = 1;
+}
+
+message UserVerifyRequest {
+  string token = 1;
+}
+
+message UserVerifyResponse {
+  bool valid = 1;
+  string message = 2;
+  uint64 user_id = 3;
+}
